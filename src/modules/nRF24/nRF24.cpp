@@ -591,14 +591,18 @@ int16_t nRF24::config() {
   RADIOLIB_ASSERT(state);
 
   // set 15 retries and delay 1500 (5*250) us
-  this->mod->SPIsetRegValue(RADIOLIB_NRF24_REG_SETUP_RETR, (5 << 4) | 5);
+  // this->mod->SPIsetRegValue(RADIOLIB_NRF24_REG_SETUP_RETR, (5 << 4) | 5);
 
   // set features: dynamic payload on, payload with ACK packets off, dynamic ACK off
-  state = this->mod->SPIsetRegValue(RADIOLIB_NRF24_REG_FEATURE, RADIOLIB_NRF24_DPL_ON | RADIOLIB_NRF24_ACK_PAY_OFF | RADIOLIB_NRF24_DYN_ACK_OFF, 2, 0);
-  RADIOLIB_ASSERT(state);
+  // state = this->mod->SPIsetRegValue(RADIOLIB_NRF24_REG_FEATURE, RADIOLIB_NRF24_DPL_ON | RADIOLIB_NRF24_ACK_PAY_OFF | RADIOLIB_NRF24_DYN_ACK_OFF, 2, 0);
+  // RADIOLIB_ASSERT(state);
 
   // enable dynamic payloads
-  state = this->mod->SPIsetRegValue(RADIOLIB_NRF24_REG_DYNPD, RADIOLIB_NRF24_DPL_ALL_ON, 5, 0);
+  // state = this->mod->SPIsetRegValue(RADIOLIB_NRF24_REG_DYNPD, RADIOLIB_NRF24_DPL_ALL_ON, 5, 0);
+  // RADIOLIB_ASSERT(state);
+
+  // disable dynamic payloads
+  state = this->mod->SPIsetRegValue(RADIOLIB_NRF24_REG_FEATURE, RADIOLIB_NRF24_DPL_OFF | RADIOLIB_NRF24_ACK_PAY_OFF | RADIOLIB_NRF24_DYN_ACK_OFF, 2, 0);
   RADIOLIB_ASSERT(state);
 
   // reset IRQ
