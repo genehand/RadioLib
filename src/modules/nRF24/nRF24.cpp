@@ -222,6 +222,44 @@ int16_t nRF24::startTransmit(const uint8_t* data, size_t len, uint8_t addr) {
   return(state);
 }
 
+int16_t nRF24::startFast() {
+  // set mode to standby
+  int16_t state = standby();
+  RADIOLIB_ASSERT(state);
+
+  // enable primary Tx mode
+  state = this->mod->SPIsetRegValue(RADIOLIB_NRF24_REG_CONFIG, RADIOLIB_NRF24_PTX, 0, 0);
+
+  // clear interrupts
+  clearIRQ();
+
+  // flush Tx FIFO
+  SPItransfer(RADIOLIB_NRF24_CMD_FLUSH_TX);
+
+  return state;
+}
+
+// RF24 inspired
+int16_t nRF24::transmitFast(const uint8_t* data, size_t len) {
+  // check packet length
+  if(len > RADIOLIB_NRF24_MAX_PACKET_LENGTH) {
+    return(RADIOLIB_ERR_PACKET_TOO_LONG);
+  }
+
+  // fill Tx FIFO
+  uint8_t buff[32];
+  memset(buff, 0x00, 32);
+  memcpy(buff, data, len);
+  SPIwriteTxPayload(const_cast<uint8_t*>(data), len);
+
+  // CE high to start transmitting
+  this->mod->hal->digitalWrite(this->mod->getRst(), this->mod->hal->GpioLevelHigh);
+  this->mod->hal->delay(1);
+  this->mod->hal->digitalWrite(this->mod->getRst(), this->mod->hal->GpioLevelLow);
+
+  return(RADIOLIB_ERR_NONE);
+}
+
 int16_t nRF24::finishTransmit() {
   // clear interrupt flags
   clearIRQ();
@@ -583,6 +621,10 @@ void nRF24::clearIRQ() {
 
   // disable interrupts
   this->mod->SPIsetRegValue(RADIOLIB_NRF24_REG_CONFIG, RADIOLIB_NRF24_MASK_RX_DR_IRQ_OFF | RADIOLIB_NRF24_MASK_TX_DS_IRQ_OFF | RADIOLIB_NRF24_MASK_MAX_RT_IRQ_OFF, 6, 4);
+}
+
+void nRF24::flushTx() {
+  SPItransfer(RADIOLIB_NRF24_CMD_FLUSH_TX);
 }
 
 int16_t nRF24::config() {

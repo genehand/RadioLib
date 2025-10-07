@@ -301,6 +301,9 @@ class nRF24: public PhysicalLayer {
     */
     void clearPacketSentAction() override;
 
+    int16_t startFast();
+    int16_t transmitFast(const uint8_t* data, size_t len);
+
     /*!
       \brief Interrupt-driven binary transmit method. IRQ will be activated when full packet is transmitted.
       Overloads for string-based transmissions are implemented in PhysicalLayer.
@@ -482,6 +485,8 @@ class nRF24: public PhysicalLayer {
       \returns \ref status_codes
     */
     int16_t setLNA(bool enable);
+
+    void flushTx();
 
 #if !RADIOLIB_GODMODE && !RADIOLIB_LOW_LEVEL
   protected:
